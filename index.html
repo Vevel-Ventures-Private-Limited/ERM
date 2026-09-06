@@ -22,7 +22,6 @@
             overflow: hidden; 
         }
 
-        /* SIDEBAR EDITOR */
         .sidebar { 
             width: 420px; 
             background: #ffffff; 
@@ -90,7 +89,6 @@
         .btn-danger { background: #ef4444; color: white; height: 32px; width: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
         .btn-secondary { background: #64748b; color: white; }
 
-        /* PREVIEW AREA */
         .main-preview { 
             flex: 1; 
             padding: 20px; 
@@ -101,7 +99,6 @@
             width: 100%;
         }
         
-        /* DYNAMIC RULE BANNER ABOVE BILL */
         .rule-banner { 
             width: 100%; 
             max-width: 850px; 
@@ -117,7 +114,6 @@
         }
         .rule-banner strong { color: #92400e; display: block; margin-bottom: 3px; text-transform: uppercase; font-size: 11px; }
 
-        /* PRINTABLE SHEET */
         .sheet { 
             width: 100%; 
             max-width: 850px; 
@@ -129,9 +125,12 @@
             font-size: 11px; 
             display: flex; 
             flex-direction: column; 
-            justify-content: space-between; 
         }
         
+        .content-wrapper {
+            flex: 1;
+        }
+
         .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--navy); padding-bottom: 12px; margin-bottom: 12px; }
         .brand-box { display: flex; gap: 15px; align-items: center; }
         .logo-placeholder { width: 80px; height: 80px; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; text-align: center; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: #fafafa; }
@@ -169,16 +168,23 @@
         .tnc-box { font-size: 9px; color: #475569; line-height: 1.4; width: 65%; }
         .tnc-box strong { color: var(--navy); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
 
-        .footer-sec { border-top: 1px solid var(--border); padding-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .footer-sec { 
+            border-top: 1px solid var(--border); 
+            padding-top: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            flex-shrink: 0;
+            margin-top: auto;
+        }
         .sig-box { text-align: center; width: 180px; }
         .sig-line { border-top: 1px solid var(--navy); margin-top: 30px; padding-top: 3px; font-weight: bold; }
 
-        /* RESPONSIVE LAYOUT FOR TABLETS & MOBILES */
         @media (max-width: 960px) {
             body { flex-direction: column; height: auto; overflow: auto; }
             .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
             .main-preview { width: 100%; padding: 10px; }
-            .sheet { padding: 20px; font-size: 10px; }
+            .sheet { padding: 20px; font-size: 10px; min-height: auto; }
         }
 
         @media (max-width: 600px) {
@@ -188,7 +194,6 @@
             .eway-inputs-row { grid-template-columns: 1fr; }
         }
 
-        /* ADVANCED PRINT ENGINE STYLES */
         @page {
             size: A4 portrait;
             margin: 10mm;
@@ -200,17 +205,14 @@
                 print-color-adjust: exact !important;
                 color-adjust: exact !important;
             }
-
             html, body {
                 background: #ffffff !important;
                 height: 100% !important;
                 overflow: visible !important;
             }
-
             .no-print, .sidebar, .rule-banner {
                 display: none !important;
             }
-
             .main-preview {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -218,7 +220,6 @@
                 width: 100% !important;
                 display: block !important;
             }
-
             .sheet {
                 box-shadow: none !important;
                 border: none !important;
@@ -229,32 +230,31 @@
                 min-height: auto !important;
                 border-radius: 0 !important;
             }
-
             th {
                 background-color: #0b2545 !important;
                 color: #ffffff !important;
             }
-
             .address-bar {
                 background-color: #f8fafc !important;
                 border: 1px solid #e2e8f0 !important;
             }
-
             .eway-box {
                 background-color: #eff6ff !important;
                 border: 1px solid #bfdbfe !important;
             }
-
             .bank-box {
                 background-color: #fafafa !important;
                 border: 1px solid #cbd5e1 !important;
+            }
+            .footer-sec {
+                border-top: 1px solid var(--border) !important;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- EDITOR SIDEBAR -->
+    <!-- EDITOR SIDEBAR (unchanged) -->
     <div class="sidebar no-print">
         <h2>Document Controls</h2>
 
@@ -284,7 +284,6 @@
             </div>
         </div>
 
-        <!-- Reference Document No. (for Proforma & Receipt) -->
         <div id="refDocGroup" style="display:none;">
             <div class="form-group">
                 <label id="refDocLabel">Reference Doc No.</label>
@@ -292,7 +291,6 @@
             </div>
         </div>
 
-        <!-- Amount Received (for Receipt only) -->
         <div id="amountReceivedGroup" style="display:none;">
             <div class="form-group">
                 <label>Amount Received (₹)</label>
@@ -304,7 +302,6 @@
             </div>
         </div>
 
-        <!-- TAX INVOICE E-WAY CHECKBOX TOGGLE -->
         <div id="ewayToggleGroup" class="form-group" style="display:none;">
             <label class="checkbox-group">
                 <input type="checkbox" id="includeEway" onchange="renderDocument()">
@@ -327,7 +324,6 @@
             </div>
         </div>
 
-        <!-- OPERATIONAL TERMS – COLLAPSIBLE, DEFAULT COLLAPSED -->
         <h2 onclick="toggleOperationalTerms()">
             <span class="toggle-icon" id="termsIcon">▶</span> Operational Terms
         </h2>
@@ -346,7 +342,6 @@
             </div>
         </div>
 
-        <!-- BANK DETAILS TOGGLE – MOVED OUTSIDE COLLAPSIBLE, ALWAYS VISIBLE -->
         <div class="form-group" id="bankToggleGroup">
             <label class="checkbox-group">
                 <input type="checkbox" id="includeBankDetails" checked onchange="renderDocument()">
@@ -374,7 +369,6 @@
             </div>
         </div>
 
-        <!-- LINE ITEMS (hidden for Receipt) -->
         <div id="itemsSection">
             <h2>Line Items</h2>
             <div id="itemsContainer"></div>
@@ -386,14 +380,8 @@
 
     <!-- PREVIEW AREA -->
     <div class="main-preview">
-        
-        <!-- RULE BANNER ABOVE BILL (NO PRINT) -->
         <div class="rule-banner no-print" id="ruleBanner"></div>
-
-        <!-- PRINTABLE SHEET -->
-        <div class="sheet" id="printSheet">
-            <!-- DYNAMIC CONTENT GENERATED BY JS -->
-        </div>
+        <div class="sheet" id="printSheet"></div>
     </div>
 
     <script>
@@ -403,13 +391,7 @@
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const dateStr = `${day}-${month}`;
-            const abbrMap = {
-                quotation: 'QT',
-                proforma: 'PI',
-                invoice: 'INV',
-                receipt: 'REC',
-                po: 'PO'
-            };
+            const abbrMap = { quotation: 'QT', proforma: 'PI', invoice: 'INV', receipt: 'REC', po: 'PO' };
             const abbr = abbrMap[type] || 'DOC';
             return `VV/${abbr}/${dateStr}/`;
         }
@@ -466,14 +448,12 @@
                 showItems = true;
             } else if (docType === 'quotation') {
                 partyLabel.innerText = 'Customer / Business Name';
-                // Default payment terms updated to 70% / 30%
                 paymentTerms.value = '70% Advance payment, 30% before dispatch';
                 deliveryTerms.value = '7-15 Working Days after receipt of advance';
                 freightTerms.value = 'Extra at actuals (To be paid by customer separately)';
                 showItems = true;
             } else if (docType === 'proforma') {
                 partyLabel.innerText = 'Customer / Business Name';
-                // Default payment terms updated to 70% / 30%
                 paymentTerms.value = '70% Advance payment, 30% before dispatch';
                 deliveryTerms.value = '10-15 Working Days after advance';
                 freightTerms.value = 'Extra at actuals (To be paid by customer separately)';
@@ -639,10 +619,16 @@
 
             const logoHtml = `<div class="logo-placeholder"><img src="logo.svg" alt="Logo" onerror="this.parentElement.innerHTML='YOUR LOGO HERE'"></div>`;
 
+            // ---- SET DOCUMENT TITLE ----
             let docTitle = '';
-            let bodyHtml = '';
-            let footerHtml = '';
+            if (docType === 'quotation') docTitle = 'QUOTATION';
+            else if (docType === 'proforma') docTitle = 'PROFORMA INVOICE';
+            else if (docType === 'invoice') docTitle = 'TAX INVOICE';
+            else if (docType === 'receipt') docTitle = 'ADVANCE PAYMENT RECEIPT';
+            else if (docType === 'po') docTitle = 'PURCHASE ORDER';
+            else docTitle = 'DOCUMENT';
 
+            // ---- HEADER ----
             const headerHtml = `
                 <div class="header">
                     <div class="brand-box">
@@ -698,7 +684,7 @@
                     </div>
                 `;
             } else if (docType === 'receipt') {
-                // no terms box for receipt
+                // no terms box
             } else {
                 termsBox = `
                     <div class="info-card">
@@ -719,8 +705,11 @@
                 </div>
             ` : '';
 
+            // ---- BUILD BODY ----
+            let bodyHtml = '';
+            let footerHtml = '';
+
             if (docType === 'quotation') {
-                docTitle = 'QUOTATION';
                 bodyHtml = `
                     ${addressBar}
                     <div class="details-grid">
@@ -735,7 +724,6 @@
                 `;
                 footerHtml = buildTNC('quotation');
             } else if (docType === 'proforma') {
-                docTitle = 'PROFORMA INVOICE';
                 const refLine = refDocNo ? `<p style="font-size:12px; margin-top:5px;"><strong>Reference Quotation:</strong> ${refDocNo}</p>` : '';
                 bodyHtml = `
                     ${addressBar}
@@ -772,7 +760,6 @@
                 `;
                 footerHtml = buildTNC('proforma');
             } else if (docType === 'invoice') {
-                docTitle = 'TAX INVOICE';
                 bodyHtml = `
                     ${addressBar}
                     ${ewayBoxHtml}
@@ -788,7 +775,6 @@
                 `;
                 footerHtml = buildTNC('invoice');
             } else if (docType === 'receipt') {
-                docTitle = 'ADVANCE PAYMENT RECEIPT';
                 const amountWords = numberToWords(amountReceived);
                 const refLine = refDocNo ? `<p><strong>Against:</strong> ${refDocNo}</p>` : '';
                 bodyHtml = `
@@ -814,7 +800,6 @@
                     </div>
                 `;
             } else if (docType === 'po') {
-                docTitle = 'PURCHASE ORDER';
                 bodyHtml = `
                     ${addressBar}
                     <div class="details-grid">
@@ -830,8 +815,10 @@
                 footerHtml = buildTNC('po');
             }
 
+            // ---- FINAL ASSEMBLY ----
+            // Wrap header + body in a content-wrapper, footer stays separate
             document.getElementById('printSheet').innerHTML = `
-                <div>
+                <div class="content-wrapper">
                     ${headerHtml}
                     ${bodyHtml}
                 </div>
