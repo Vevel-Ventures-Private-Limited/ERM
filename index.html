@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vevel Ventures - Document Generator</title>
+    <style>
+        :root {
+            --navy: #0b2545;
+            --blue: #0f52ba;
+            --light-bg: #f4f6f9;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        
+        body { 
+            background: var(--light-bg); 
+            color: #1e293b; 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* SIDEBAR EDITOR */
+        .sidebar { 
+            width: 420px; 
+            background: #ffffff; 
+            border-right: 1px solid var(--border); 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            flex-shrink: 0;
+        }
+        
+        .sidebar h2 { 
+            font-size: 15px; 
+            color: var(--navy); 
+            border-bottom: 2px solid var(--blue); 
+            padding-bottom: 5px; 
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar h2:hover { color: var(--blue); }
+        .sidebar h2 .toggle-icon { font-size: 14px; color: var(--blue); }
+        
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 11px; font-weight: bold; color: #475569; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { 
+            padding: 8px; 
+            font-size: 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 4px; 
+            outline: none; 
+            width: 100%;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--blue);
+        }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .checkbox-group { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            color: var(--navy); 
+            cursor: pointer; 
+            background: #eff6ff; 
+            padding: 8px 12px; 
+            border-radius: 4px; 
+            border: 1px solid #bfdbfe; 
+        }
+        .checkbox-group input { cursor: pointer; width: 16px; height: 16px; }
+
+        .item-card { background: #f8fafc; border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+        .item-grid-top { display: grid; grid-template-columns: 2fr 1fr 30px; gap: 6px; margin-bottom: 6px; }
+        .item-grid-bottom { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
+
+        .btn { padding: 9px 14px; font-size: 12px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; text-align: center; }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: #0a4093; }
+        .btn-danger { background: #ef4444; color: white; height: 32px; width: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-secondary { background: #64748b; color: white; }
+
+        /* PREVIEW AREA */
+        .main-preview { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+        }
+        
+        /* DYNAMIC RULE BANNER ABOVE BILL */
+        .rule-banner { 
+            width: 100%; 
+            max-width: 850px; 
+            background: #fffbebf5; 
+            border: 1px solid #f59e0b; 
+            border-left: 5px solid #d97706; 
+            padding: 12px 15px; 
+            border-radius: 6px; 
+            margin-bottom: 15px; 
+            font-size: 12px; 
+            line-height: 1.5; 
+            color: #78350f; 
+        }
+        .rule-banner strong { color: #92400e; display: block; margin-bottom: 3px; text-transform: uppercase; font-size: 11px; }
+
+        /* PRINTABLE SHEET */
+        .sheet { 
+            width: 100%; 
+            max-width: 850px; 
+            min-height: 1050px; 
+            background: white; 
+            padding: 35px; 
+            border-radius: 6px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            font-size: 11px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+        }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--navy); padding-bottom: 12px; margin-bottom: 12px; }
+        .brand-box { display: flex; gap: 15px; align-items: center; }
+        .logo-placeholder { width: 80px; height: 80px; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; text-align: center; border-radius: 4px; overflow: hidden; flex-shrink: 0; background: #fafafa; }
+        .logo-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+        .brand-info h1 { font-size: 17px; color: var(--navy); font-weight: 800; }
+        .brand-info p { font-size: 10px; color: #64748b; }
+        
+        .doc-title { text-align: right; }
+        .doc-title h2 { font-size: 20px; color: var(--blue); text-transform: uppercase; }
+        .doc-title p { font-size: 11px; font-weight: bold; color: #334155; }
+
+        .address-bar { display: flex; justify-content: space-between; background: #f8fafc; padding: 8px 12px; border: 1px solid #e2e8f0; font-size: 10px; margin-bottom: 12px; border-radius: 4px; }
+        .addr-column { width: 48%; }
+        .addr-column strong { color: var(--navy); }
+
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .info-card { border: 1px solid var(--border); padding: 8px 10px; border-radius: 4px; background: #fff; }
+        .info-card h3 { font-size: 10px; color: var(--blue); text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th { background: var(--navy); color: white; padding: 6px 8px; text-align: left; font-size: 10px; text-transform: uppercase; }
+        td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .summary-sec { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 15px; }
+        .bank-box { width: 52%; border: 1px solid var(--border); padding: 8px 10px; border-radius: 4px; font-size: 10px; background: #fafafa; }
+        .totals-box { width: 42%; }
+        .totals-box table td { padding: 3px 0; border: none; }
+        .grand-row { font-weight: bold; font-size: 12px; color: var(--navy); border-top: 2px solid var(--navy) !important; }
+
+        .eway-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px; display: flex; justify-content: space-between; font-size: 10px; }
+
+        .eway-inputs-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .tnc-box { font-size: 9px; color: #475569; line-height: 1.4; width: 65%; }
+        .tnc-box strong { color: var(--navy); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
+
+        .footer-sec { border-top: 1px solid var(--border); padding-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sig-box { text-align: center; width: 180px; }
+        .sig-line { border-top: 1px solid var(--navy); margin-top: 30px; padding-top: 3px; font-weight: bold; }
+
+        /* RESPONSIVE LAYOUT FOR TABLETS & MOBILES */
+        @media (max-width: 960px) {
+            body { flex-direction: column; height: auto; overflow: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+            .main-preview { width: 100%; padding: 10px; }
+            .sheet { padding: 20px; font-size: 10px; }
+        }
+
+        @media (max-width: 600px) {
+            .header, .address-bar, .details-grid, .summary-sec, .footer-sec { flex-direction: column; gap: 10px; }
+            .addr-column, .bank-box, .totals-box, .tnc-box, .sig-box { width: 100% !important; }
+            .doc-title { text-align: left; }
+            .eway-inputs-row { grid-template-columns: 1fr; }
+        }
+
+        /* ADVANCED PRINT ENGINE STYLES */
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                height: 100% !important;
+                overflow: visible !important;
+            }
+
+            .no-print, .sidebar, .rule-banner {
+                display: none !important;
+            }
+
+            .main-preview {
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .sheet {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+                border-radius: 0 !important;
+            }
+
+            th {
+                background-color: #0b2545 !important;
+                color: #ffffff !important;
+            }
+
+            .address-bar {
+                background-color: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+
+            .eway-box {
+                background-color: #eff6ff !important;
+                border: 1px solid #bfdbfe !important;
+            }
+
+            .bank-box {
+                background-color: #fafafa !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- EDITOR SIDEBAR -->
+    <div class="sidebar no-print">
+        <h2>Document Controls</h2>
+
+        <div class="form-group">
+            <label>Document Type</label>
+            <select id="docType" onchange="handleDocTypeChange()">
+                <option value="quotation">Quotation</option>
+                <option value="proforma">Proforma Invoice</option>
+                <option value="invoice">Tax Invoice</option>
+                <option value="receipt">Advance Payment Receipt</option>
+                <option value="po">Purchase Order (To Distributor)</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Doc Number Prefix</label>
+                <div style="display:flex; align-items:center; gap:4px; background:#f1f5f9; padding:4px 8px; border-radius:4px; border:1px solid var(--border); font-size:12px;">
+                    <span id="docPrefixDisplay">VV/QT/07-09/</span>
+                    <input type="text" id="docNumberSuffix" placeholder="001" value="001" style="border:none; background:transparent; outline:none; width:60px; font-weight:bold;" oninput="renderDocument()">
+                </div>
+                <div style="font-size:10px; color:#64748b; margin-top:2px;">Type the sequential number (e.g., 001, 002)</div>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="docDate" value="2026-09-07" onchange="renderDocument()">
+            </div>
+        </div>
+
+        <!-- Reference Document No. (for Proforma & Receipt) -->
+        <div id="refDocGroup" style="display:none;">
+            <div class="form-group">
+                <label id="refDocLabel">Reference Doc No.</label>
+                <input type="text" id="refDocNo" placeholder="e.g., VV/QT/07-09/001" oninput="renderDocument()">
+            </div>
+        </div>
+
+        <!-- Amount Received (for Receipt only) -->
+        <div id="amountReceivedGroup" style="display:none;">
+            <div class="form-group">
+                <label>Amount Received (₹)</label>
+                <input type="number" id="amountReceived" value="50000" step="0.01" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Payment Mode</label>
+                <input type="text" id="paymentMode" value="Bank Transfer / UPI" oninput="renderDocument()">
+            </div>
+        </div>
+
+        <!-- TAX INVOICE E-WAY CHECKBOX TOGGLE -->
+        <div id="ewayToggleGroup" class="form-group" style="display:none;">
+            <label class="checkbox-group">
+                <input type="checkbox" id="includeEway" onchange="renderDocument()">
+                Include E-Way Bill Details
+            </label>
+        </div>
+
+        <div id="ewayInputs" style="display:none;" class="eway-inputs-row">
+            <div class="form-group">
+                <label>E-Way Bill No.</label>
+                <input type="text" id="ewayNo" value="241009876543" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Vehicle No.</label>
+                <input type="text" id="vehicleNo" value="MH-34-AB-1234" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Dispatch Date</label>
+                <input type="date" id="ewayDate" value="2026-09-07" onchange="renderDocument()">
+            </div>
+        </div>
+
+        <!-- OPERATIONAL TERMS – COLLAPSIBLE, DEFAULT COLLAPSED -->
+        <h2 onclick="toggleOperationalTerms()">
+            <span class="toggle-icon" id="termsIcon">▶</span> Operational Terms
+        </h2>
+        <div id="operationalTermsContent" style="display:none;">
+            <div class="form-group">
+                <label>Payment Terms</label>
+                <input type="text" id="paymentTerms" value="100% Payment Received / As per ledger" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Delivery Terms</label>
+                <input type="text" id="deliveryTerms" value="Dispatch from Chandrapur Godown" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Freight / Transport</label>
+                <input type="text" id="freightTerms" value="Extra at actuals (To be paid by customer separately)" oninput="renderDocument()">
+            </div>
+        </div>
+
+        <!-- BANK DETAILS TOGGLE – MOVED OUTSIDE COLLAPSIBLE, ALWAYS VISIBLE -->
+        <div class="form-group" id="bankToggleGroup">
+            <label class="checkbox-group">
+                <input type="checkbox" id="includeBankDetails" checked onchange="renderDocument()">
+                Show Bank Details in Document
+            </label>
+        </div>
+
+        <h2>Party / Business Info</h2>
+        <div class="form-group">
+            <label id="partyLabel">Customer / Business Name</label>
+            <input type="text" id="partyName" value="M/s Raj Cafe & Restaurant" oninput="renderDocument()">
+        </div>
+        <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="partyAddress" value="Plot 12, Main Market, Chandrapur - 442401" oninput="renderDocument()">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>GSTIN (Optional for B2C)</label>
+                <input type="text" id="partyGstin" value="27ABCDE9999F1Z2" oninput="renderDocument()">
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="partyPhone" value="+91 95522 30380" oninput="renderDocument()">
+            </div>
+        </div>
+
+        <!-- LINE ITEMS (hidden for Receipt) -->
+        <div id="itemsSection">
+            <h2>Line Items</h2>
+            <div id="itemsContainer"></div>
+            <button class="btn btn-secondary" onclick="addItemRow()">+ Add Item</button>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <!-- PREVIEW AREA -->
+    <div class="main-preview">
+        
+        <!-- RULE BANNER ABOVE BILL (NO PRINT) -->
+        <div class="rule-banner no-print" id="ruleBanner"></div>
+
+        <!-- PRINTABLE SHEET -->
+        <div class="sheet" id="printSheet">
+            <!-- DYNAMIC CONTENT GENERATED BY JS -->
+        </div>
+    </div>
+
+    <script>
+        // ---- DOCUMENT NUMBER PREFIX GENERATION ----
+        function getDocPrefix(type) {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const dateStr = `${day}-${month}`;
+            const abbrMap = {
+                quotation: 'QT',
+                proforma: 'PI',
+                invoice: 'INV',
+                receipt: 'REC',
+                po: 'PO'
+            };
+            const abbr = abbrMap[type] || 'DOC';
+            return `VV/${abbr}/${dateStr}/`;
+        }
+
+        // ---- STATE ----
+        let items = [
+            { desc: "Western Visicooler SRC 500-G", hsn: "8418", serial: "W202609071042", qty: 1, rate: 45000 }
+        ];
+
+        // ---------- COLLAPSIBLE OPERATIONAL TERMS ----------
+        let termsVisible = false;
+        function toggleOperationalTerms() {
+            termsVisible = !termsVisible;
+            const content = document.getElementById('operationalTermsContent');
+            const icon = document.getElementById('termsIcon');
+            content.style.display = termsVisible ? 'block' : 'none';
+            icon.textContent = termsVisible ? '▼' : '▶';
+        }
+
+        // ---------- DOCUMENT TYPE HANDLER ----------
+        function handleDocTypeChange() {
+            const docType = document.getElementById('docType').value;
+            const ewayToggleGroup = document.getElementById('ewayToggleGroup');
+            const partyLabel = document.getElementById('partyLabel');
+            const paymentTerms = document.getElementById('paymentTerms');
+            const deliveryTerms = document.getElementById('deliveryTerms');
+            const freightTerms = document.getElementById('freightTerms');
+            const bankToggleGroup = document.getElementById('bankToggleGroup');
+            const itemsSection = document.getElementById('itemsSection');
+            const refDocGroup = document.getElementById('refDocGroup');
+            const amountReceivedGroup = document.getElementById('amountReceivedGroup');
+            const refDocLabel = document.getElementById('refDocLabel');
+
+            if (docType === 'quotation' || docType === 'proforma') {
+                bankToggleGroup.style.display = 'block';
+                document.getElementById('includeBankDetails').checked = true;
+            } else {
+                bankToggleGroup.style.display = 'none';
+            }
+
+            ewayToggleGroup.style.display = 'none';
+            refDocGroup.style.display = 'none';
+            amountReceivedGroup.style.display = 'none';
+            itemsSection.style.display = 'block';
+
+            let showItems = true;
+
+            if (docType === 'invoice') {
+                ewayToggleGroup.style.display = 'block';
+                partyLabel.innerText = 'Customer / Business Name';
+                paymentTerms.value = '100% Payment Received / As per ledger';
+                deliveryTerms.value = 'Dispatch from Chandrapur Godown';
+                freightTerms.value = 'Extra at actuals (To be paid by customer separately)';
+                showItems = true;
+            } else if (docType === 'quotation') {
+                partyLabel.innerText = 'Customer / Business Name';
+                // Default payment terms updated to 70% / 30%
+                paymentTerms.value = '70% Advance payment, 30% before dispatch';
+                deliveryTerms.value = '7-15 Working Days after receipt of advance';
+                freightTerms.value = 'Extra at actuals (To be paid by customer separately)';
+                showItems = true;
+            } else if (docType === 'proforma') {
+                partyLabel.innerText = 'Customer / Business Name';
+                // Default payment terms updated to 70% / 30%
+                paymentTerms.value = '70% Advance payment, 30% before dispatch';
+                deliveryTerms.value = '10-15 Working Days after advance';
+                freightTerms.value = 'Extra at actuals (To be paid by customer separately)';
+                refDocGroup.style.display = 'block';
+                refDocLabel.innerText = 'Reference Quotation No.';
+                showItems = true;
+            } else if (docType === 'receipt') {
+                partyLabel.innerText = 'Received From (Customer)';
+                paymentTerms.value = 'N/A';
+                deliveryTerms.value = 'N/A';
+                freightTerms.value = 'N/A';
+                refDocGroup.style.display = 'block';
+                refDocLabel.innerText = 'Against (Proforma/Invoice No.)';
+                amountReceivedGroup.style.display = 'block';
+                itemsSection.style.display = 'none';
+                showItems = false;
+            } else if (docType === 'po') {
+                partyLabel.innerText = 'Vendor / Distributor Name';
+                document.getElementById('partyName').value = 'Western Refrigeration Pvt. Ltd.';
+                document.getElementById('partyAddress').value = 'Regional Distribution Depot, Nagpur';
+                document.getElementById('partyGstin').value = '27AAAAA0000A1Z5';
+                paymentTerms.value = 'As per standard distributor credit terms';
+                deliveryTerms.value = 'Dispatch to Godown (Chandrapur)';
+                freightTerms.value = 'As per agreed distributor rates';
+                showItems = true;
+            }
+
+            const prefix = getDocPrefix(docType);
+            document.getElementById('docPrefixDisplay').textContent = prefix;
+
+            if (showItems) {
+                if (items.length === 0) {
+                    items.push({ desc: "Item", hsn: "8418", serial: "", qty: 1, rate: 0 });
+                }
+                renderEditorItems();
+            }
+            renderDocument();
+        }
+
+        // ---------- ITEMS MANAGEMENT ----------
+        function addItemRow() {
+            items.push({ desc: "New Commercial Unit", hsn: "8418", serial: "", qty: 1, rate: 25000 });
+            renderEditorItems();
+            renderDocument();
+        }
+
+        function removeItemRow(index) {
+            if (items.length > 1) {
+                items.splice(index, 1);
+                renderEditorItems();
+                renderDocument();
+            }
+        }
+
+        function updateItem(index, key, value) {
+            items[index][key] = (key === 'qty' || key === 'rate') ? Number(value) : value;
+            renderDocument();
+        }
+
+        function renderEditorItems() {
+            const docType = document.getElementById('docType').value;
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+
+            if (docType === 'receipt') return;
+            if (items.length === 0) {
+                items.push({ desc: "Item", hsn: "8418", serial: "", qty: 1, rate: 0 });
+            }
+
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                const showSerial = docType === 'invoice';
+
+                card.innerHTML = `
+                    <div class="item-grid-top">
+                        <input type="text" placeholder="Item Description" value="${item.desc}" oninput="updateItem(${index}, 'desc', this.value)">
+                        <input type="text" placeholder="HSN" value="${item.hsn}" oninput="updateItem(${index}, 'hsn', this.value)">
+                        <button class="btn btn-danger" onclick="removeItemRow(${index})">X</button>
+                    </div>
+                    <div class="item-grid-bottom">
+                        ${showSerial ? `<input type="text" placeholder="Serial No. (S/N)" value="${item.serial || ''}" oninput="updateItem(${index}, 'serial', this.value)">` : `<div></div>`}
+                        <input type="number" placeholder="Qty" value="${item.qty}" oninput="updateItem(${index}, 'qty', this.value)">
+                        <input type="number" placeholder="Rate (₹)" value="${item.rate}" oninput="updateItem(${index}, 'rate', this.value)">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ---------- NUMBER TO WORDS ----------
+        function numberToWords(num) {
+            if (num === 0) return 'Zero';
+            const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const n = Math.floor(num);
+            if (n < 20) return a[n];
+            if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+            if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + numberToWords(n % 100) : '');
+            if (n < 100000) return numberToWords(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 ? ' ' + numberToWords(n % 1000) : '');
+            if (n < 10000000) return numberToWords(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 ? ' ' + numberToWords(n % 100000) : '');
+            return numberToWords(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 ? ' ' + numberToWords(n % 10000000) : '');
+        }
+
+        function formatCurrency(amount) {
+            return '₹ ' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // ---------- MAIN RENDER FUNCTION ----------
+        function renderDocument() {
+            if (items.length === 0) {
+                items.push({ desc: "Item", hsn: "8418", serial: "", qty: 1, rate: 0 });
+                renderEditorItems();
+            }
+
+            const docType = document.getElementById('docType').value;
+            const prefix = document.getElementById('docPrefixDisplay').textContent;
+            const suffix = document.getElementById('docNumberSuffix').value.trim() || '001';
+            const docNumber = prefix + suffix;
+            const docDate = document.getElementById('docDate').value;
+            const partyName = document.getElementById('partyName').value;
+            const partyAddress = document.getElementById('partyAddress').value;
+            const partyGstin = document.getElementById('partyGstin').value.trim();
+            const partyPhone = document.getElementById('partyPhone').value;
+            const paymentTerms = document.getElementById('paymentTerms').value;
+            const deliveryTerms = document.getElementById('deliveryTerms').value;
+            const freightTerms = document.getElementById('freightTerms').value;
+            const includeEway = document.getElementById('includeEway').checked && docType === 'invoice';
+            const showBank = document.getElementById('includeBankDetails').checked && (docType === 'quotation' || docType === 'proforma');
+            const refDocNo = document.getElementById('refDocNo').value;
+            const amountReceived = parseFloat(document.getElementById('amountReceived').value) || 0;
+            const paymentMode = document.getElementById('paymentMode').value || 'Bank Transfer';
+
+            document.getElementById('ewayInputs').style.display = includeEway ? 'grid' : 'none';
+
+            let taxableTotal = 0, cgst = 0, sgst = 0, grandTotal = 0;
+            let isReceipt = docType === 'receipt';
+
+            if (!isReceipt) {
+                items.forEach(i => taxableTotal += (i.qty * i.rate));
+                cgst = taxableTotal * 0.09;
+                sgst = taxableTotal * 0.09;
+                grandTotal = taxableTotal + cgst + sgst;
+            }
+
+            const banner = document.getElementById('ruleBanner');
+            if (docType === 'quotation') {
+                let bankNote = showBank ? '' : ' (Bank details hidden as per your preference)';
+                banner.innerHTML = `<strong>Quotation Compliance Rule:</strong> HSN 8418 (18% GST) specified. Valid for 15 days. Freight extra at actuals.${bankNote}`;
+            } else if (docType === 'proforma') {
+                banner.innerHTML = `<strong>Proforma Invoice Rule:</strong> This is a payment demand. Advance payment required to confirm order. Reference: ${refDocNo || 'N/A'}`;
+            } else if (docType === 'invoice') {
+                if (grandTotal >= 100000) {
+                    banner.innerHTML = `<strong>Tax Invoice Compliance Rule:</strong> Total value is <strong>₹${grandTotal.toLocaleString('en-IN')}</strong> (>= ₹1,00,000). <strong>E-Way Bill generation is MANDATORY</strong> on the portal before transit.`;
+                } else {
+                    banner.innerHTML = `<strong>Tax Invoice Compliance Rule:</strong> Total value is <strong>₹${grandTotal.toLocaleString('en-IN')}</strong> (< ₹1,00,000 intra-state threshold). E-Way Bill is <strong>OPTIONAL</strong>.`;
+                }
+            } else if (docType === 'receipt') {
+                banner.innerHTML = `<strong>Advance Payment Receipt:</strong> Acknowledgment of payment received. Against: ${refDocNo || 'N/A'}`;
+            } else if (docType === 'po') {
+                banner.innerHTML = `<strong>Purchase Order Rule:</strong> Issued TO Western Refrigeration. HSN 8418 specified. 'Ship To' destination is set to your Godown.`;
+            }
+
+            const logoHtml = `<div class="logo-placeholder"><img src="logo.svg" alt="Logo" onerror="this.parentElement.innerHTML='YOUR LOGO HERE'"></div>`;
+
+            let docTitle = '';
+            let bodyHtml = '';
+            let footerHtml = '';
+
+            const headerHtml = `
+                <div class="header">
+                    <div class="brand-box">
+                        ${logoHtml}
+                        <div class="brand-info">
+                            <h1>VEVEL VENTURES PRIVATE LIMITED</h1>
+                            <p>Commercial Refrigeration & Display Solutions</p>
+                            <p><strong>CIN:</strong> U46529ME2026PTC474384 | <strong>GSTIN:</strong> 27XXXXXXXXXX1Z1 | <strong>State Code:</strong> 27</p>
+                        </div>
+                    </div>
+                    <div class="doc-title">
+                        <h2>${docTitle}</h2>
+                        <p># ${docNumber}</p>
+                        <p style="color:#64748b; font-weight:normal;">Date: ${docDate}</p>
+                    </div>
+                </div>
+            `;
+
+            const addressBar = `
+                <div class="address-bar">
+                    <div class="addr-column">
+                        <strong>REGISTERED OFFICE (BILLING):</strong><br>
+                        124/168, Katkar Society, Bhadrawati, Dist. Chandrapur, MH - 442902.<br>
+                        Email: info@vevelventures.com | Phone: +91 95522 30380
+                    </div>
+                    <div class="addr-column">
+                        <strong>GODOWN / DISPATCH LOCATION:</strong><br>
+                        Rayatwari Colliery, near Neem Vatika Garden,<br>
+                        Chandrapur - 442401, Maharashtra
+                    </div>
+                </div>
+            `;
+
+            const gstinLine = partyGstin ? `<p><strong>GSTIN:</strong> ${partyGstin}</p>` : '';
+            const partyBox = `
+                <div class="info-card">
+                    <h3>${docType === 'po' ? 'Vendor / Supplier Details' : (docType === 'receipt' ? 'Received From' : 'Billed To (Customer Details)')}</h3>
+                    <p><strong>Name:</strong> ${partyName}</p>
+                    <p><strong>Address:</strong> ${partyAddress}</p>
+                    ${gstinLine}
+                    <p><strong>Phone:</strong> ${partyPhone}</p>
+                </div>
+            `;
+
+            let termsBox = '';
+            if (docType === 'po') {
+                termsBox = `
+                    <div class="info-card">
+                        <h3>Commercial Terms</h3>
+                        <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
+                        <p><strong>Freight:</strong> ${freightTerms}</p>
+                        <p><strong>Dispatch To:</strong> Godown (as mentioned above)</p>
+                    </div>
+                `;
+            } else if (docType === 'receipt') {
+                // no terms box for receipt
+            } else {
+                termsBox = `
+                    <div class="info-card">
+                        <h3>Supply & Operational Terms</h3>
+                        <p><strong>Place of Supply:</strong> 27 - Maharashtra</p>
+                        <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
+                        <p><strong>Delivery Term:</strong> ${deliveryTerms}</p>
+                        <p><strong>Freight Charges:</strong> ${freightTerms}</p>
+                    </div>
+                `;
+            }
+
+            const ewayBoxHtml = includeEway ? `
+                <div class="eway-box">
+                    <span><strong>E-WAY BILL NO:</strong> ${document.getElementById('ewayNo').value}</span>
+                    <span><strong>VEHICLE NO:</strong> ${document.getElementById('vehicleNo').value}</span>
+                    <span><strong>DISPATCH DATE:</strong> ${document.getElementById('ewayDate').value}</span>
+                </div>
+            ` : '';
+
+            if (docType === 'quotation') {
+                docTitle = 'QUOTATION';
+                bodyHtml = `
+                    ${addressBar}
+                    <div class="details-grid">
+                        ${partyBox}
+                        ${termsBox}
+                    </div>
+                    ${buildItemsTable(false)}
+                    <div class="summary-sec">
+                        ${buildBankBox(showBank)}
+                        ${buildTotalsBox(taxableTotal, cgst, sgst, grandTotal)}
+                    </div>
+                `;
+                footerHtml = buildTNC('quotation');
+            } else if (docType === 'proforma') {
+                docTitle = 'PROFORMA INVOICE';
+                const refLine = refDocNo ? `<p style="font-size:12px; margin-top:5px;"><strong>Reference Quotation:</strong> ${refDocNo}</p>` : '';
+                bodyHtml = `
+                    ${addressBar}
+                    ${ewayBoxHtml}
+                    <div class="details-grid">
+                        ${partyBox}
+                        ${termsBox}
+                    </div>
+                    ${refLine}
+                    ${buildItemsTable(false)}
+                    <div class="summary-sec">
+                        ${buildBankBox(showBank)}
+                        <div style="width:42%;">
+                            <table>
+                                <tr>
+                                    <td>Total Amount:</td>
+                                    <td class="text-right">${formatCurrency(grandTotal)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Advance Payment (70%):</strong></td>
+                                    <td class="text-right"><strong>${formatCurrency(grandTotal * 0.7)}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Balance Due (on delivery):</strong></td>
+                                    <td class="text-right"><strong>${formatCurrency(grandTotal * 0.3)}</strong></td>
+                                </tr>
+                                <tr class="grand-row">
+                                    <td>Grand Total:</td>
+                                    <td class="text-right">${formatCurrency(grandTotal)}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                footerHtml = buildTNC('proforma');
+            } else if (docType === 'invoice') {
+                docTitle = 'TAX INVOICE';
+                bodyHtml = `
+                    ${addressBar}
+                    ${ewayBoxHtml}
+                    <div class="details-grid">
+                        ${partyBox}
+                        ${termsBox}
+                    </div>
+                    ${buildItemsTable(true)}
+                    <div class="summary-sec">
+                        ${buildBankBox(false)}
+                        ${buildTotalsBox(taxableTotal, cgst, sgst, grandTotal)}
+                    </div>
+                `;
+                footerHtml = buildTNC('invoice');
+            } else if (docType === 'receipt') {
+                docTitle = 'ADVANCE PAYMENT RECEIPT';
+                const amountWords = numberToWords(amountReceived);
+                const refLine = refDocNo ? `<p><strong>Against:</strong> ${refDocNo}</p>` : '';
+                bodyHtml = `
+                    <div style="margin: 20px 0; padding: 20px; border: 1px solid var(--border); border-radius: 4px; background: #fafafa;">
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Received from:</strong> ${partyName}</p>
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Address:</strong> ${partyAddress}</p>
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Amount Received:</strong> ${formatCurrency(amountReceived)}</p>
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>In Words:</strong> ${amountWords} Rupees Only</p>
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Payment Mode:</strong> ${paymentMode}</p>
+                        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Date:</strong> ${docDate}</p>
+                        ${refLine}
+                    </div>
+                `;
+                footerHtml = `
+                    <div class="footer-sec">
+                        <div style="width: 65%; font-size: 9px; color: #475569;">
+                            <strong>Note:</strong> This receipt acknowledges the advance payment. The final Tax Invoice will be issued after delivery.
+                        </div>
+                        <div class="sig-box">
+                            <p>For <strong>Vevel Ventures Pvt. Ltd.</strong></p>
+                            <div class="sig-line">Authorized Signatory</div>
+                        </div>
+                    </div>
+                `;
+            } else if (docType === 'po') {
+                docTitle = 'PURCHASE ORDER';
+                bodyHtml = `
+                    ${addressBar}
+                    <div class="details-grid">
+                        ${partyBox}
+                        ${termsBox}
+                    </div>
+                    ${buildItemsTable(false)}
+                    <div class="summary-sec">
+                        ${buildBankBox(false)}
+                        ${buildTotalsBox(taxableTotal, cgst, sgst, grandTotal)}
+                    </div>
+                `;
+                footerHtml = buildTNC('po');
+            }
+
+            document.getElementById('printSheet').innerHTML = `
+                <div>
+                    ${headerHtml}
+                    ${bodyHtml}
+                </div>
+                ${footerHtml}
+            `;
+        }
+
+        // ---- Helper functions ----
+        function buildItemsTable(showSerial) {
+            if (document.getElementById('docType').value === 'receipt') return '';
+            let rows = '';
+            items.forEach((item, idx) => {
+                const total = item.qty * item.rate * 1.18;
+                const serialSubtext = (showSerial && item.serial) ? `<br><small style="color:#475569; font-weight:600;">S/N: ${item.serial}</small>` : '';
+                rows += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong>${item.desc}</strong>${serialSubtext}</td>
+                        <td class="text-center">${item.hsn}</td>
+                        <td class="text-center">${item.qty}</td>
+                        <td class="text-right">₹ ${item.rate.toLocaleString('en-IN')}</td>
+                        <td class="text-right">₹ ${(item.qty * item.rate).toLocaleString('en-IN')}</td>
+                        <td class="text-right">18%</td>
+                        <td class="text-right">₹ ${total.toLocaleString('en-IN')}</td>
+                    </tr>
+                `;
+            });
+            return `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Item Description</th>
+                            <th class="text-center">HSN</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Unit Rate</th>
+                            <th class="text-right">Taxable Val</th>
+                            <th class="text-right">GST Rate</th>
+                            <th class="text-right">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function buildBankBox(show) {
+            if (!show) return `<div style="width:52%;"></div>`;
+            return `
+                <div class="bank-box">
+                    <strong style="color:var(--blue);">BANK PAYMENT DETAILS:</strong><br>
+                    <strong>Account Name:</strong> VEVEL VENTURES PRIVATE LIMITED<br>
+                    <strong>Bank Name:</strong> HDFC Bank Ltd.<br>
+                    <strong>Account No:</strong> 502000XXXXXX12 | <strong>IFSC:</strong> HDFC0001234
+                </div>
+            `;
+        }
+
+        function buildTotalsBox(taxableTotal, cgst, sgst, grandTotal) {
+            return `
+                <div class="totals-box">
+                    <table>
+                        <tr>
+                            <td>Taxable Value:</td>
+                            <td class="text-right">₹ ${taxableTotal.toLocaleString('en-IN')}</td>
+                        </tr>
+                        <tr>
+                            <td>CGST (9%):</td>
+                            <td class="text-right">₹ ${cgst.toLocaleString('en-IN')}</td>
+                        </tr>
+                        <tr>
+                            <td>SGST (9%):</td>
+                            <td class="text-right">₹ ${sgst.toLocaleString('en-IN')}</td>
+                        </tr>
+                        <tr class="grand-row">
+                            <td>Grand Total:</td>
+                            <td class="text-right">₹ ${grandTotal.toLocaleString('en-IN')}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+
+        function buildTNC(type) {
+            let content = '';
+            if (type === 'invoice') {
+                content = `
+                    <strong>Standard Terms & Conditions:</strong><br>
+                    1. Goods once sold will not be taken back or exchanged.<br>
+                    2. Freight / transportation charges are extra at actuals and payable separately.<br>
+                    3. Interest @ 18% p.a. will be charged if payment is delayed beyond agreed terms.<br>
+                    4. Product warranty is strictly subject to the primary manufacturer's terms & conditions.<br>
+                    5. All disputes are subject to Chandrapur Jurisdiction only.
+                `;
+            } else if (type === 'quotation' || type === 'proforma') {
+                content = `
+                    <strong>Standard Terms & Conditions:</strong><br>
+                    1. Quotation/proforma validity: 15 days from the date of issue.<br>
+                    2. Freight / transportation charges are extra at actuals and payable by the customer separately.<br>
+                    3. Delivery timeline: 7-15 working days after receipt of advance.<br>
+                    4. Taxes and GST rate (18%) are as explicitly mentioned in the table above.<br>
+                    5. All disputes are subject to Chandrapur Jurisdiction only.
+                `;
+            } else if (type === 'po') {
+                content = `
+                    <strong>Standard Terms & Conditions:</strong><br>
+                    1. Supply strictly as per specifications mentioned above.<br>
+                    2. Damaged or defective goods must be replaced by the supplier.<br>
+                    3. E-Way bill must be generated indicating 'Ship To' as Godown address.<br>
+                    4. All disputes are subject to Chandrapur Jurisdiction only.
+                `;
+            }
+            return `
+                <div class="footer-sec">
+                    <div class="tnc-box">
+                        ${content}
+                    </div>
+                    <div class="sig-box">
+                        <p>For <strong>Vevel Ventures Pvt. Ltd.</strong></p>
+                        <div class="sig-line">Authorized Signatory</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initial Setup
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('docDate').value = new Date().toISOString().split('T')[0];
+            if (items.length === 0) {
+                items.push({ desc: "Western Visicooler SRC 500-G", hsn: "8418", serial: "W202609071042", qty: 1, rate: 45000 });
+            }
+            handleDocTypeChange();
+            setTimeout(renderDocument, 200);
+        });
+    </script>
+</body>
+</html>
